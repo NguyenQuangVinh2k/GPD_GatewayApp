@@ -8,24 +8,23 @@ using System.Threading.Tasks;
 
 namespace SyngentaGatewayApp.Repository
 {
-    public class MasterDataRepository
+    public class GatewayRepository
     {
-        public async Task AddDataLog(MasterDataEntity data)
+        public async Task AddDataLog(GatewayEntity data)
         {
             using (var context = new AppDBContext())
             {
-                var repo = new GenericRepository<MasterDataEntity, AppDBContext>(context);
+                var repo = new GenericRepository<GatewayEntity, AppDBContext>(context);
                 await repo.Add(data);
             }
         }
-        public async Task GetListLog(MasterDataEntity data) 
+        public async Task GetListLog(GatewayEntity data)
         {
             using (var context = new AppDBContext())
             {
-                var repo = new GenericRepository<MasterDataEntity, AppDBContext>(context);
+                var repo = new GenericRepository<GatewayEntity, AppDBContext>(context);
                 await repo.GetAllAsync();
             }
         }
-
     }
 }

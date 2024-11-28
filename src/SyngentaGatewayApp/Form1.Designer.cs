@@ -40,6 +40,8 @@
             label7 = new Label();
             txtServerSend = new TextBox();
             panel2 = new Panel();
+            txtURL = new TextBox();
+            button2 = new Button();
             button1 = new Button();
             bntServerRead = new Button();
             btnServerSend = new Button();
@@ -122,7 +124,7 @@
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 2;
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 439F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 249F));
             tableLayoutPanel2.Size = new Size(535, 675);
             tableLayoutPanel2.TabIndex = 0;
             // 
@@ -130,9 +132,9 @@
             // 
             panel3.Controls.Add(tableLayoutPanel4);
             panel3.Dock = DockStyle.Fill;
-            panel3.Location = new Point(3, 239);
+            panel3.Location = new Point(3, 429);
             panel3.Name = "panel3";
-            panel3.Size = new Size(529, 433);
+            panel3.Size = new Size(529, 243);
             panel3.TabIndex = 1;
             // 
             // tableLayoutPanel4
@@ -147,7 +149,7 @@
             tableLayoutPanel4.Name = "tableLayoutPanel4";
             tableLayoutPanel4.RowCount = 1;
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel4.Size = new Size(529, 433);
+            tableLayoutPanel4.Size = new Size(529, 243);
             tableLayoutPanel4.TabIndex = 0;
             // 
             // panel7
@@ -158,7 +160,7 @@
             panel7.Dock = DockStyle.Fill;
             panel7.Location = new Point(266, 3);
             panel7.Name = "panel7";
-            panel7.Size = new Size(260, 427);
+            panel7.Size = new Size(260, 237);
             panel7.TabIndex = 1;
             // 
             // label8
@@ -174,10 +176,10 @@
             // txtServerRead
             // 
             txtServerRead.Dock = DockStyle.Bottom;
-            txtServerRead.Location = new Point(0, 44);
+            txtServerRead.Location = new Point(0, 28);
             txtServerRead.Multiline = true;
             txtServerRead.Name = "txtServerRead";
-            txtServerRead.Size = new Size(260, 383);
+            txtServerRead.Size = new Size(260, 209);
             txtServerRead.TabIndex = 2;
             // 
             // panel6
@@ -188,7 +190,7 @@
             panel6.Dock = DockStyle.Fill;
             panel6.Location = new Point(3, 3);
             panel6.Name = "panel6";
-            panel6.Size = new Size(257, 427);
+            panel6.Size = new Size(257, 237);
             panel6.TabIndex = 0;
             // 
             // label7
@@ -204,15 +206,17 @@
             // txtServerSend
             // 
             txtServerSend.Dock = DockStyle.Bottom;
-            txtServerSend.Location = new Point(0, 44);
+            txtServerSend.Location = new Point(0, 28);
             txtServerSend.Multiline = true;
             txtServerSend.Name = "txtServerSend";
-            txtServerSend.Size = new Size(257, 383);
+            txtServerSend.Size = new Size(257, 209);
             txtServerSend.TabIndex = 0;
             // 
             // panel2
             // 
             panel2.BackColor = SystemColors.ActiveCaption;
+            panel2.Controls.Add(txtURL);
+            panel2.Controls.Add(button2);
             panel2.Controls.Add(button1);
             panel2.Controls.Add(bntServerRead);
             panel2.Controls.Add(btnServerSend);
@@ -227,22 +231,41 @@
             panel2.Dock = DockStyle.Fill;
             panel2.Location = new Point(3, 3);
             panel2.Name = "panel2";
-            panel2.Size = new Size(529, 230);
+            panel2.Size = new Size(529, 420);
             panel2.TabIndex = 0;
+            // 
+            // txtURL
+            // 
+            txtURL.Location = new Point(11, 229);
+            txtURL.Multiline = true;
+            txtURL.Name = "txtURL";
+            txtURL.Size = new Size(498, 82);
+            txtURL.TabIndex = 16;
+            txtURL.Text = "http://192.168.10.15:8080/TrackAndTraceServer/report/batchList?fromDate=12/11/2024&toDate=19/11/2024&lineId=0&isDatewisePosting=false&isReework=false";
+            // 
+            // button2
+            // 
+            button2.Location = new Point(350, 369);
+            button2.Name = "button2";
+            button2.Size = new Size(159, 29);
+            button2.TabIndex = 15;
+            button2.Text = "Get API";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_ClickAsync;
             // 
             // button1
             // 
-            button1.Location = new Point(350, 155);
+            button1.Location = new Point(350, 334);
             button1.Name = "button1";
             button1.Size = new Size(159, 29);
             button1.TabIndex = 14;
-            button1.Text = "Reset Counter";
+            button1.Text = "Get Token";
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
             // bntServerRead
             // 
-            bntServerRead.Location = new Point(185, 190);
+            bntServerRead.Location = new Point(185, 369);
             bntServerRead.Name = "bntServerRead";
             bntServerRead.Size = new Size(159, 29);
             bntServerRead.TabIndex = 13;
@@ -252,7 +275,7 @@
             // 
             // btnServerSend
             // 
-            btnServerSend.Location = new Point(185, 155);
+            btnServerSend.Location = new Point(185, 334);
             btnServerSend.Name = "btnServerSend";
             btnServerSend.Size = new Size(159, 29);
             btnServerSend.TabIndex = 12;
@@ -280,7 +303,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(5, 110);
+            label2.Location = new Point(5, 71);
             label2.Name = "label2";
             label2.Size = new Size(115, 20);
             label2.TabIndex = 7;
@@ -289,7 +312,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(19, 54);
+            label1.Location = new Point(19, 37);
             label1.Name = "label1";
             label1.Size = new Size(101, 20);
             label1.TabIndex = 6;
@@ -297,7 +320,7 @@
             // 
             // txtServerPort
             // 
-            txtServerPort.Location = new Point(129, 107);
+            txtServerPort.Location = new Point(129, 68);
             txtServerPort.Name = "txtServerPort";
             txtServerPort.Size = new Size(179, 27);
             txtServerPort.TabIndex = 3;
@@ -305,7 +328,7 @@
             // 
             // txtServerIP
             // 
-            txtServerIP.Location = new Point(129, 51);
+            txtServerIP.Location = new Point(129, 34);
             txtServerIP.Name = "txtServerIP";
             txtServerIP.Size = new Size(179, 27);
             txtServerIP.TabIndex = 2;
@@ -313,7 +336,7 @@
             // 
             // btnCloseSer
             // 
-            btnCloseSer.Location = new Point(11, 190);
+            btnCloseSer.Location = new Point(11, 369);
             btnCloseSer.Name = "btnCloseSer";
             btnCloseSer.Size = new Size(159, 29);
             btnCloseSer.TabIndex = 1;
@@ -323,7 +346,7 @@
             // 
             // btnOpenSer
             // 
-            btnOpenSer.Location = new Point(11, 155);
+            btnOpenSer.Location = new Point(11, 334);
             btnOpenSer.Name = "btnOpenSer";
             btnOpenSer.Size = new Size(159, 29);
             btnOpenSer.TabIndex = 0;
@@ -457,7 +480,6 @@
             btnReadPrinter.TabIndex = 15;
             btnReadPrinter.Text = "Read From Printer";
             btnReadPrinter.UseVisualStyleBackColor = true;
-            btnReadPrinter.Click += btnReadPrinter_Click;
             // 
             // pnPrinterStatus
             // 
@@ -616,5 +638,7 @@
         private Button btnReadPrinter;
         private Button btnSendPrinter;
         private Button button1;
+        private Button button2;
+        private TextBox txtURL;
     }
 }

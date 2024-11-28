@@ -12,11 +12,7 @@ namespace SyngentaGatewayApp.Services
     public class PlcServices
     {
         public event DataSentHandler OnDataSentHandler;
-        //private PlcServices _plcServices;
-        //public PlcServices(PlcServices plcServices)
-        //{
-        //    this._plcServices = plcServices;
-        //}
+
         public void SendDataPLC(MitsubishiClient client, uint registerStart, uint lengthRegister, string data)
         {
             // DataPlan
@@ -32,7 +28,6 @@ namespace SyngentaGatewayApp.Services
                 b_format_data[i] = (byte)b_data[i];
             }
             client.Write($"D{registerStart}", b_format_data);
-            //OnDataSentHandler?.Invoke(this, new SuperSimpleTcp.DataSentEventArgs());
         }
 
 
@@ -48,7 +43,6 @@ namespace SyngentaGatewayApp.Services
         {
             if (client != null)
             {
-                //client.Write($"D{registerStart}", data, DataTypeEnum.Int32);
                 client.Write($"M{registerStart}", data, DataTypeEnum.Bool);
             }
 
@@ -62,9 +56,7 @@ namespace SyngentaGatewayApp.Services
             {
                 return DataLogReverse.FirstOrDefault();
             }
-
-
-            return -1;
+            return 0;
         }
 
         public List<KeyValuePair<string, short>> ReadDataPLC(MitsubishiClient client, ushort registerStart, ushort length)

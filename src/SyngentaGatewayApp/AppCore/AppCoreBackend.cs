@@ -5,8 +5,10 @@ using iSoft.Common.Utils;
 using SuperSimpleTcp;
 using SyngentaGatewayApp.Database;
 using SyngentaGatewayApp.DeserializedClass;
+using SyngentaGatewayApp.Entity;
 using SyngentaGatewayApp.Events;
 using SyngentaGatewayApp.Factory;
+using SyngentaGatewayApp.Repository;
 using SyngentaGatewayApp.Services;
 using System;
 using System.Collections.Generic;
@@ -36,23 +38,20 @@ namespace SyngentaGatewayApp.AppCore
         string name = "Printer";
         public GatewayServices _gatewayServices = new GatewayServices();
         public GetBatchServices _getBatchServices = new GetBatchServices();
-
         public PlcServices _PlcServices = new PlcServices();
-
         public RabbitService _rabbitService = new RabbitService();
-
+        public MasterDataRepository _masterDataRepository = new MasterDataRepository();
+        public GatewayRepository _gatewayRepository = new GatewayRepository();
         public MitsubishiClient? _client { get; set; }
         private bool isConnectedPLC;
         string PlcIp = Environment.GetEnvironmentVariable("PLC_IP");
-        string PlcPort = Environment.GetEnvironmentVariable("PLC_PORT");
+        string PlcPort = Environment.GetEnvironmentVariable("PLC_PORT"); 
+        string PlcResetBit = Environment.GetEnvironmentVariable("PLC_RESET_M1");
         public System.Timers.Timer timer_checkReadtPLC = new System.Timers.Timer();
         public System.Timers.Timer timer_checkReadtPLC_DB = new System.Timers.Timer();
         public System.Timers.Timer timer_checkConnectPLC = new System.Timers.Timer();
 
 
-
-
-        
         public static AppCore Ins
         {
             get
@@ -60,6 +59,7 @@ namespace SyngentaGatewayApp.AppCore
                 return _ins == null ? _ins = new AppCore() : _ins;
             }
         }
+
         public AppCore()
         {
             var process = Process.GetProcessesByName($"{Assembly.GetEntryAssembly().GetName().Name}");
@@ -71,25 +71,31 @@ namespace SyngentaGatewayApp.AppCore
 
         public async Task Init()
         {
-            //CreateLog();
-            _rabbitService.ConfigsRabbitMQ();
-            _rabbitService.PushMessage(Encoding.ASCII.GetBytes("Connecting_Rabbit"));
-            await InitDB();
+            CreateLog();
+            InitDB().Wait();
+            InitRabbitMQ();
             InitGateway();
             await InitPLC();
             InitEvents();
             StartShowUI();
         }
-        public async Task InitDB() 
+
+        public async Task InitRabbitMQ()
         {
-            DatabaseServices.Init(); 
+            _rabbitService.ConfigsRabbitMQ();
         }
-        public async Task InitGateway() 
+
+        public async Task InitDB()
+        {
+            DatabaseServices.Init();
+        }
+
+        public async Task InitGateway()
         {
             try
             {
-                _gatewayServices.InitOpenServer(GatewayIp, int.Parse(GatewayPort));
-                _gatewayServices.InitConnectPrinter(PrinterIp,int.Parse(PrinterPort));
+                await _gatewayServices.InitOpenServer(GatewayIp, int.Parse(GatewayPort));
+                await _gatewayServices.InitConnectPrinter(PrinterIp, int.Parse(PrinterPort));
             }
             catch (Exception ex)
             {
@@ -115,7 +121,6 @@ namespace SyngentaGatewayApp.AppCore
                 timer_checkReadtPLC.Interval = 500;
                 timer_checkReadtPLC.Elapsed += Timer_checkReadPLC_Elapsed;
                 timer_checkReadtPLC.Start();
-
             }
             catch (Exception ex)
             {
@@ -123,6 +128,7 @@ namespace SyngentaGatewayApp.AppCore
                 throw ex;
             }
         }
+
 
         private void Timer_checkConnectPLC_Elapsed(object? sender, ElapsedEventArgs e)
         {
@@ -138,7 +144,7 @@ namespace SyngentaGatewayApp.AppCore
                     }
                     _client = new MitsubishiClient(MitsubishiVersion.Qna_3E, PlcIp, int.Parse(PlcPort));
                     _client.Open();
-                    isConnectedPLC = _client.Connected;         
+                    isConnectedPLC = _client.Connected;
                 }
             }
             catch (Exception ex)
@@ -151,31 +157,50 @@ namespace SyngentaGatewayApp.AppCore
                 timer_checkConnectPLC.Start();
             }
         }
+
+
         private void Timer_checkReadPLC_Elapsed(object? sender, ElapsedEventArgs e)
         {
-            try
+            lock (this)
             {
-                if (isConnectedPLC)
+                try
                 {
-                    if (_client != null)
+                    if (isConnectedPLC)
                     {
-                        ushort Start = 1000;
-                        ushort Length = 1;
-                        var currentLossCode = _PlcServices.ReadValuePLC(_client, Start, Length);
+                        if (_client != null)
+                        {
+                            ushort StartOK = 5000;
+                            ushort LengthOK = 1;
+                            var CounterOK = _PlcServices.ReadValuePLC(_client, StartOK, LengthOK);
+                            ushort StartNG = 5100;
+                            ushort LengthNG = 1;
+                            var CounterNG = _PlcServices.ReadValuePLC(_client, StartNG, LengthNG);
+                            string Data = $"Counter OK Machine: {CounterOK} \r\nCounter NG Machine: {CounterNG}";
+                            //MasterDataEntity Data  = new MasterDataEntity()
+                            //{
+
+                            //};
+                            //_masterDataRepository.GetListLog(Data);
+
+                            _rabbitService.PushMessage(Encoding.ASCII.GetBytes(Data));
+
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString() + ex.StackTrace);
-                throw ex;
-            }
-            finally
-            {
-                timer_checkReadtPLC.Start();
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString() + ex.StackTrace);
+                    throw ex;
+                }
+                finally
+                {
+                    timer_checkReadtPLC.Start();
+                }
             }
         }
-        public async Task ResetCounter(uint Start)
+
+
+        public async Task ResetCounter()
         {
             try
             {
@@ -183,10 +208,10 @@ namespace SyngentaGatewayApp.AppCore
                 {
                     if (_client != null)
                     {
-                        bool trigger = true;
-                        bool reset = false;
-                        _PlcServices.SendDataPLC(_client, Start, trigger);
-                        _PlcServices.SendDataPLC(_client, Start, reset);
+                        //Set rst bit
+                        _PlcServices.SendDataPLC(_client, uint.Parse(PlcResetBit), true);
+                        //Reset rst bit
+                        _PlcServices.SendDataPLC(_client, uint.Parse(PlcResetBit), false);
                     }
                 }
             }
@@ -201,24 +226,28 @@ namespace SyngentaGatewayApp.AppCore
             }
         }
 
+
         public void InitEvents()
         {
             try
             {
-                _gatewayServices.OnChangeOver += GatewayServices_OnChangeOver1;
+                _gatewayServices.OnChangeOver += GatewayServices_OnChangeOver;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString() + ex.StackTrace);
                 throw ex;
             }
-           
+
         }
-        private async Task GatewayServices_OnChangeOver1(uint Address)
+        private async Task GatewayServices_OnChangeOver()
         {
-            await ResetCounter(Address);
-            _getBatchServices.ChangeOver();
+            var machine = _gatewayServices.CLientSender;
+            await ResetCounter();
         }
+
+
+        // Log data
         public void CreateLog()
         {
             lock (this)
@@ -237,7 +266,6 @@ namespace SyngentaGatewayApp.AppCore
                     throw ex;
                 }
             }
-
         }
         public void WriteLogToFile(string logEntry)
         {
@@ -254,7 +282,51 @@ namespace SyngentaGatewayApp.AppCore
                     throw ex;
                 }
             }
+        }
 
+
+        public async Task<string> getTokenServer()
+        {
+            try
+            {
+                var data = await _getBatchServices.GetToken("http://192.168.10.15:8080/TrackAndTraceServer/token/generate-token", "operator", "Syngenta2@");
+                data = data.Replace("\\", "").TrimStart('"').TrimEnd('"');
+                WriteLogToFile(DateTime.Now + "\n" + "Get token Successful !!!\n");
+                WriteLogToFile(data + "\n");
+                return data;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.StackTrace);
+                return null;
+            }
+
+        }
+
+        public async Task<string> CallBatchList(string URL, byte[] token)
+        {
+            try
+            {
+                var data = await _getBatchServices.GetBatchList(URL, token);
+                if (data != "401" || data != null)
+                {
+                    WriteLogToFile(DateTime.Now + "\n" + URL + "\n");
+                    WriteLogToFile(data + "\n");
+                    return data;
+                }
+                else
+                {
+                    var newToken = Encoding.ASCII.GetBytes(await getTokenServer());
+                    var NewData = await _getBatchServices.GetBatchList(URL, newToken);
+                    return NewData;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.StackTrace);
+                return null;
+            }
         }
 
     }

@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace SyngentaGatewayApp.DeserializedClass
 {
-    public class JsonGetBatch
+    public class ListBatch
     {
-        public BusinessErrorGetBatch businessError { get; set; }
-        public List<ReGetBatch> res { get; set; }
+        public BusinessErrorListBatch businessError { get; set; }
+        public List<ReListBatch> res { get; set; }
     }
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-    public class BatchLevelCollectionGetBatch
+
+    // JsonListBatch myDeserializedClass = JsonConvert.DeserializeObject<JsonListBatch>(myJsonResponse);
+    public class BatchLevelCollectionListBatch
     {
         public int id { get; set; }
         public int count { get; set; }
@@ -53,13 +54,13 @@ namespace SyngentaGatewayApp.DeserializedClass
         public int TPIntegration { get; set; }
     }
 
-    public class BusinessErrorGetBatch
+    public class BusinessErrorListBatch
     {
         public int code { get; set; }
         public string message { get; set; }
     }
 
-    public class LineDetailsCollectionGetBatch
+    public class LineDetailsCollectionListBatch
     {
         public int id { get; set; }
         public int level { get; set; }
@@ -68,7 +69,7 @@ namespace SyngentaGatewayApp.DeserializedClass
         public int lineId { get; set; }
     }
 
-    public class LineMasterGetBatch
+    public class LineMasterListBatch
     {
         public int id { get; set; }
         public string name { get; set; }
@@ -76,7 +77,7 @@ namespace SyngentaGatewayApp.DeserializedClass
         public int plantId { get; set; }
         public int createdBy { get; set; }
         public object updatedby { get; set; }
-        public List<LineDetailsCollectionGetBatch> lineDetailsCollection { get; set; }
+        public List<LineDetailsCollectionListBatch> lineDetailsCollection { get; set; }
         public DateTime createdDate { get; set; }
         public object updatedDate { get; set; }
         public int isActive { get; set; }
@@ -91,7 +92,8 @@ namespace SyngentaGatewayApp.DeserializedClass
         public object level5 { get; set; }
         public object level6 { get; set; }
     }
-    public class ReGetBatch
+
+    public class ReListBatch
     {
         public int id { get; set; }
         public string batchName { get; set; }
@@ -99,11 +101,11 @@ namespace SyngentaGatewayApp.DeserializedClass
         public int createdBy { get; set; }
         public int isactive { get; set; }
         public int updatedBy { get; set; }
-        public List<BatchLevelCollectionGetBatch> batchLevelCollection { get; set; }
+        public List<BatchLevelCollectionListBatch> batchLevelCollection { get; set; }
         public int productId { get; set; }
         public DateTime createdDate { get; set; }
         public DateTime updatedDate { get; set; }
-        public LineMasterGetBatch lineMaster { get; set; }
+        public LineMasterListBatch lineMaster { get; set; }
         public int finalStatus { get; set; }
         public DateTime eventPostTime { get; set; }
         public object createdByName { get; set; }

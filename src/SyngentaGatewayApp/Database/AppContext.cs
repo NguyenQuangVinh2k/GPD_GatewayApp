@@ -13,8 +13,9 @@ namespace SyngentaGatewayApp.Database
     public class AppDBContext : DbContext
     {
         public string portPG = Environment.GetEnvironmentVariable("DATABASE_PORT");
-        public string nameDbDatalog = Environment.GetEnvironmentVariable("DATABASE_NAME");
-        public DbSet<MasterData> masterData { get; set; }
+        public string nameDb = Environment.GetEnvironmentVariable("DATABASE_NAME");
+        public DbSet<MasterDataEntity> MasterData { get; set; }
+        public DbSet<GatewayEntity> Gateways { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -22,7 +23,7 @@ namespace SyngentaGatewayApp.Database
                 optionsBuilder.UseNpgsql(
                  "Server=localhost;" +
                  $"Port={portPG};" +
-                 $"Database={nameDbDatalog};" +
+                 $"Database={nameDb};" +
                  "User Id=postgres;" +
                  "Password=123456789;"
                  );

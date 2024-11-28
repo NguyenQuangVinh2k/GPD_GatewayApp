@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SyngentaGatewayApp.DeserializedClass
 {
-    public class JsonListLine
+    public class ListLine
     {
         public BusinessErrorListLine businessError { get; set; }
         public List<ReListLine> res { get; set; }

@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace SyngentaGatewayApp.Services
 {
-  
+
     public class GatewayServices
     {
         private CommonTCPServer _AppServer { get; set; }
@@ -34,6 +34,7 @@ namespace SyngentaGatewayApp.Services
         string CurrentLOT;
         string NewLOT;
         uint MachineID;
+        public string CLientSender;
 
 
         public async Task InitOpenServer(string host, int port)
@@ -62,6 +63,8 @@ namespace SyngentaGatewayApp.Services
                 throw ex;
             }
         }
+
+
         private async Task _AppServer_OnDataReceived(object sender, DataReceivedEventArgs bytesReceive)
         {
             try
@@ -69,17 +72,17 @@ namespace SyngentaGatewayApp.Services
                 string ReceivedDataString = Encoding.ASCII.GetString(bytesReceive.Data.Array);
                 byte[] ReceivedDataByte = Encoding.ASCII.GetBytes(ReceivedDataString);
                 Data = ReceivedDataByte;
-
                 if (ReceivedDataString.Contains(SIGNATURE_CO_FROM_PRINTER))
                 {
                     //string result = ReceivedDataString.Split('"')[3];
-                    NewLOT = Regex.Match(ReceivedDataString, @"(?<=\""LOT\""\s*\"")[^""]+").Value;
-                    if (NewLOT != CurrentLOT) 
+                    NewLOT = Regex.Match(ReceivedDataString, @"ETTEXT\x20\x20""LOT""\x20\x20""(.+)""").Value;
+                    if (NewLOT != CurrentLOT)
                     {
-                        OnChangeOver?.Invoke(MachineID);
+                        OnChangeOver?.Invoke();
                         NewLOT = CurrentLOT;
                     }
                 }
+                CLientSender = bytesReceive.IpPort;
                 SendToPrinter(bytesReceive.Data.Array);
             }
             catch (Exception ex)
@@ -88,10 +91,14 @@ namespace SyngentaGatewayApp.Services
                 throw ex;
             }
         }
+
+
         public void StopServer()
         {
             _AppServer.Dispose();
         }
+
+
         public void SendToClient(byte[] Data)
         {
             var connection = _AppServer.ListClients();
@@ -100,8 +107,6 @@ namespace SyngentaGatewayApp.Services
                 _AppServer.Send(item, Data);
             }
         }
-
-  
 
 
         public async Task InitConnectPrinter(string host, int port)
@@ -129,6 +134,8 @@ namespace SyngentaGatewayApp.Services
                 throw ex;
             }
         }
+
+
         private void _Printer_OnDataReceive(object? sender, SuperSimpleTcp.DataReceivedEventArgs e)
         {
             try
@@ -144,11 +151,15 @@ namespace SyngentaGatewayApp.Services
                 throw ex;
             }
         }
+
+
         public void DisconnectPrinter()
         {
             _Printer.Disconnect();
             PrinterStatus = false;
         }
+
+
         public void SendToPrinter(byte[] SendData)
         {
             try

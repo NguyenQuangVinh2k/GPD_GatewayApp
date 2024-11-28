@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SyngentaGatewayApp.DeserializedClass
 {
-    public class JsonLogin
+    public class Login
     {
         public string Status {  get; set; }
         public byte[] Token { get; set; }

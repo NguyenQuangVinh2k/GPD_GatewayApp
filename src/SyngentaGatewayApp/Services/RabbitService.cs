@@ -4,6 +4,8 @@ using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,54 +13,57 @@ namespace SyngentaGatewayApp.Services
 {
     public class RabbitService
     {
-
-        public string Address = "localhost";
-        public int Port = 2712;
-        public string Username = "admin";
-        public string Password = "admin1";
-        public string Exchange = "GPD_Exchange";
-        public string QueueName = "GPD_Queue";
-        public string RoutingKey = "GPD_RoutingKey";
+        string Host = Environment.GetEnvironmentVariable("RABBIT_MQ_HOST");
+        string Port = Environment.GetEnvironmentVariable("RABBIT_MQ_PORT");
+        string Username = Environment.GetEnvironmentVariable("RABBIT_MQ_USERNAME");
+        string Password = Environment.GetEnvironmentVariable("RABBIT_MQ_PASSWORD");
+        string Exchange = Environment.GetEnvironmentVariable("RABBIT_MQ_EXCHANGE");
+        string QueueName = Environment.GetEnvironmentVariable("RABBIT_MQ_QUEUE");
+        string RoutingKey = Environment.GetEnvironmentVariable("RABBIT_MQ_ROUTING_KEY");
         public IModel model;
         public IConnection connection;
         public ConnectionFactory factory;
-        public void ConfigsRabbitMQ() 
+
+        public void ConfigsRabbitMQ()
         {
-            factory = new ConnectionFactory() 
+            factory = new ConnectionFactory()
             {
-                HostName = Address,
-                Port = Port,
+                HostName = Host,
+                Port = int.Parse(Port),
                 UserName = Username,
                 Password = Password,
                 VirtualHost = "/"
             };
             try
             {
-                connection = factory.CreateConnection();
-                model = connection.CreateModel();
-                // Create Exchange
-                model.ExchangeDeclare(Exchange, ExchangeType.Direct);
-                // Create Queue
-                model.QueueDeclare(QueueName, true, false, false, null);
-                // Bind Queue to Exchange
-                model.QueueBind(QueueName, Exchange, RoutingKey);
+                {
+                    connection = factory.CreateConnection();
+                    model = connection.CreateModel();
+                    // Create Exchange
+                    model.ExchangeDeclare(Exchange, ExchangeType.Direct);
+                    // Create Queue
+                    model.QueueDeclare(QueueName, true, false, false, null);
+                    // Bind Queue to Exchange
+                    model.QueueBind(QueueName, Exchange, RoutingKey);
+                }
 
             }
             catch (Exception ex)
             {
-
-                throw ex;
+                Console.WriteLine("Error ConfigsRabbitMQ",ex.Message);
             }
         }
-        public void init() 
+
+
+        public void init()
         {
             try
             {
-                if (connection.IsOpen != true)
+                if (IsConnect != true)
                 {
                     connection = factory.CreateConnection();
                 }
-                else 
+                else
                 {
                     connection.Close();
                     connection = factory.CreateConnection();
@@ -69,22 +74,46 @@ namespace SyngentaGatewayApp.Services
 
                 throw ex;
             }
-
-
         }
-        public void PushMessage(byte[] data) 
+
+
+        public void PushMessage(byte[] data)
         {
-            try
+            lock (this)
             {
-                var properties = model.CreateBasicProperties();
-                model.BasicPublish(Exchange, RoutingKey, properties, data);
+                try
+                {
+                    if ( data == null) return;
+                    if(connection.IsOpen != true) init();
+                    var properties = model.CreateBasicProperties();
+                    model.BasicPublish(Exchange, RoutingKey, properties, data);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Exception Push Message" + "\n" + ex.StackTrace + "\n" + ex.Message + "\n");
+                    init();
+                }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-           
         }
+
+
+        public bool IsConnect
+        {
+            get
+            {
+                var ping = new Ping();
+                var resultPing = ping.Send(Host, 50);
+                return resultPing.Status == IPStatus.Success && connection != null && connection.IsOpen == true;
+            }
+            set { }
+        }
+
+
+
+
+
+
+
 
     }
 }

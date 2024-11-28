@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SyngentaGatewayApp.Entity
 {
-    public class MasterData : BaseEntity
+    public class MasterDataEntity : BaseEntity
     {
         public string Machine {  get; set; }
         public string Line {  get; set; }

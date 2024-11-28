@@ -1,10 +1,12 @@
-﻿using iSoft.Common.Utils;
+﻿using iSoft.Common.ExtensionMethods;
+using iSoft.Common.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SyngentaGatewayApp.DeserializedClass;
 using SyngentaGatewayApp.Entity;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +23,7 @@ namespace SyngentaGatewayApp.Services
         string WebUsername = Environment.GetEnvironmentVariable("WEB_USERNAME");
         string WebPassword = Environment.GetEnvironmentVariable("WEB_PASSWORD");
         string WebUrlGetBatch = Environment.GetEnvironmentVariable("WEB_URL_GET_BATCH");
-        string LogginUrl = "https://auth.i-soft.com.vn/api/v1/auths/login";
+        string LoginUrl = "http://192.168.10.15:8080/TrackAndTraceServer/token/getUserByUsername?username=operator";
         public void PingJeksonHost()
         {
             try
@@ -34,74 +36,55 @@ namespace SyngentaGatewayApp.Services
                 throw ex;
             }
         }
-        public async Task InitLoginWebHost()
-        {
-            try
-            {
-                //PingJeksonHost();
-                //if (isConnectWebApp)
-                //{
-                    _token = await GetToken(LogginUrl, WebUsername, WebPassword);
-                    CallGetsListBatch(_token);
-                //}
-                //else 
-                //{
-                    //Console.WriteLine("Disconnect Server");
-                    //Console.ReadLine();
-                //}
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString() + ex.StackTrace);
-                throw ex;
-            }
-
-        }
-        public async Task<byte[]> GetToken(string Url, string UserName, string Password)
+        public async Task<string> GetToken(string Url, string UserName, string Password)
         {
             try
             {
                 var req = new LoginRequestModel()
                 {
-                     Username="admin6",
-                     Password= "g73acCChdeozEND9MvWAIPFM4XGSfHKBOYv9IvRCYA8"
+                    Username = "operator",
+                    Password = "Syngenta2@"
                 };
-                var AuthData = await HttpUtil.PostDataAsForm(Url, null, req);
-                //if (AuthData == null || AuthData.Status == "FAIL") return null;
-                //return Encoding.ASCII.GetBytes(AuthData.Data.AccessToken);
-                TestAPI myDeserializedClass = JsonConvert.DeserializeObject<TestAPI>(AuthData);
-                return Encoding.ASCII.GetBytes(myDeserializedClass.Data.AccessToken);
+                MessageBox.Show($"Account:{req.ToJson()}");
+                var AuthData = await HttpUtil.PostData(Url, req.ToJson());
+                if (AuthData == null)
+                {
+                    throw new Exception("AuthData null");
+                }
+                else
+                {
+                    MessageBox.Show(AuthData.ToString());
+                }
+                return AuthData.ToJson();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString() + ex.StackTrace);
                 throw ex;
-
             }
         }
-        public async Task CallGetsListBatch(byte[] token)
+
+        public async Task<string> GetBatchList(string Url,byte[] token) 
         {
             try
             {
-                var ListBatch = await HttpUtil.GetData<Root>(WebUrlGetBatch, token);
-                var data = ListBatch;
-                if (ListBatch == null || ListBatch.Status == "401")
+                var Data = await HttpUtil.GetData(Url, token);
+               
+                if (Data == null)
                 {
-                    InitLoginWebHost();
-                };
-
+                    throw new Exception("Data null");
+                }
+                else
+                {
+                    MessageBox.Show(Data);
+                }
+                return Data;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString() + ex.StackTrace);
-                InitLoginWebHost();
+
+                throw ex;
             }
         }
 
-
-        public void ChangeOver()
-        {
-            CallGetsListBatch(_token);
-        }
     }
 }

@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace SyngentaGatewayApp.DeserializedClass
 {
-    public class JsonListBatch
+    public class ListPayload
     {
-        public BusinessErrorListBatch businessError { get; set; }
-        public List<ReListBatch> res { get; set; }
+        public BusinessErrorPayLoad businessError { get; set; }
+        public List<RePayLoad> res { get; set; }
     }
-
-    // JsonListBatch myDeserializedClass = JsonConvert.DeserializeObject<JsonListBatch>(myJsonResponse);
-    public class BatchLevelCollectionListBatch
+    // JsonPayload myDeserializedClass = JsonConvert.DeserializeObject<JsonPayload>(myJsonResponse);
+    public class BatchLevelCollectionPayLoad
     {
         public int id { get; set; }
         public int count { get; set; }
@@ -22,15 +21,15 @@ namespace SyngentaGatewayApp.DeserializedClass
         public string gtin { get; set; }
         public int sscc { get; set; }
         public int createdBy { get; set; }
-        public object updatedBy { get; set; }
+        public int updatedBy { get; set; }
         public object expiryDate { get; set; }
-        public DateTime createdDate { get; set; }
-        public object updatedDate { get; set; }
+        public string createdDate { get; set; }
+        public string updatedDate { get; set; }
         public int barcodeType { get; set; }
         public string ip { get; set; }
         public int acceptedCount { get; set; }
         public object gtinType { get; set; }
-        public object companyPrefixId { get; set; }
+        public int companyPrefixId { get; set; }
         public int inter_val { get; set; }
         public int rejectedCount { get; set; }
         public int discardedCount { get; set; }
@@ -54,13 +53,13 @@ namespace SyngentaGatewayApp.DeserializedClass
         public int TPIntegration { get; set; }
     }
 
-    public class BusinessErrorListBatch
+    public class BusinessErrorPayLoad
     {
         public int code { get; set; }
         public string message { get; set; }
     }
 
-    public class LineDetailsCollectionListBatch
+    public class LineDetailsCollectionPayLoad
     {
         public int id { get; set; }
         public int level { get; set; }
@@ -69,17 +68,17 @@ namespace SyngentaGatewayApp.DeserializedClass
         public int lineId { get; set; }
     }
 
-    public class LineMasterListBatch
+    public class LineMasterPayLoad
     {
         public int id { get; set; }
         public string name { get; set; }
         public int manfId { get; set; }
         public int plantId { get; set; }
         public int createdBy { get; set; }
-        public object updatedby { get; set; }
-        public List<LineDetailsCollectionListBatch> lineDetailsCollection { get; set; }
-        public DateTime createdDate { get; set; }
-        public object updatedDate { get; set; }
+        public int updatedby { get; set; }
+        public List<LineDetailsCollectionPayLoad> lineDetailsCollection { get; set; }
+        public string createdDate { get; set; }
+        public string updatedDate { get; set; }
         public int isActive { get; set; }
         public string lineIdentifier { get; set; }
         public string plantName { get; set; }
@@ -93,7 +92,7 @@ namespace SyngentaGatewayApp.DeserializedClass
         public object level6 { get; set; }
     }
 
-    public class ReListBatch
+    public class RePayLoad
     {
         public int id { get; set; }
         public string batchName { get; set; }
@@ -101,14 +100,14 @@ namespace SyngentaGatewayApp.DeserializedClass
         public int createdBy { get; set; }
         public int isactive { get; set; }
         public int updatedBy { get; set; }
-        public List<BatchLevelCollectionListBatch> batchLevelCollection { get; set; }
+        public List<BatchLevelCollectionPayLoad> batchLevelCollection { get; set; }
         public int productId { get; set; }
-        public DateTime createdDate { get; set; }
-        public DateTime updatedDate { get; set; }
-        public LineMasterListBatch lineMaster { get; set; }
+        public string createdDate { get; set; }
+        public string updatedDate { get; set; }
+        public LineMasterPayLoad lineMaster { get; set; }
         public int finalStatus { get; set; }
-        public DateTime eventPostTime { get; set; }
-        public object createdByName { get; set; }
+        public string eventPostTime { get; set; }
+        public string createdByName { get; set; }
         public int specimenStatus { get; set; }
         public object companyPrefixCmbName { get; set; }
         public int isLineUp { get; set; }
@@ -118,22 +117,22 @@ namespace SyngentaGatewayApp.DeserializedClass
         public int isClosed { get; set; }
         public int standardType { get; set; }
         public string erpBatchId { get; set; }
-        public DateTime transferDate { get; set; }
-        public object productName { get; set; }
-        public object level { get; set; }
+        public string transferDate { get; set; }
+        public string productName { get; set; }
+        public string level { get; set; }
         public int mode { get; set; }
         public string expDate { get; set; }
         public string productCode { get; set; }
-        public object lineName { get; set; }
+        public string lineName { get; set; }
         public int shipment { get; set; }
         public int isposted { get; set; }
         public int packagingType { get; set; }
         public string archived { get; set; }
         public int archiveStatus { get; set; }
         public int assignTo { get; set; }
-        public object assignToName { get; set; }
+        public string assignToName { get; set; }
         public object product { get; set; }
-        public object productionid { get; set; }
+        public int productionid { get; set; }
         public int post_seq { get; set; }
         public object requestType { get; set; }
         public int prePrintedSerialCodeLength { get; set; }
